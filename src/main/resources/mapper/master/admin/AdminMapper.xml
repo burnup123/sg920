@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: 系统管理员 数据库操作
+ * Description: 系统管理员账号管理
+ * Company: com.sg920
+ * author: luomj
+ * time:2017-09-06 23:30:12
+ * version 1.0
+-->
+<mapper namespace="com.sg.account.dao.master.AdminDao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+            <result property="id" column="id"/>
+            <result property="userName" column="user_name"/>
+            <result property="mobile" column="mobile"/>
+            <result property="sex" column="sex"/>
+            <result property="address" column="address"/>
+            <result property="idcard" column="idcard"/>
+            <result property="joinDate" column="join_date"/>
+            <result property="deptid" column="deptid"/>
+            <result property="deptName" column="dept_name"/>
+            <result property="position" column="position"/>
+            <result property="avatar" column="avatar"/>
+            <result property="isLeader" column="is_leader"/>
+    </resultMap>
+
+    <sql id="table">sg_admin</sql>
+
+    <sql id="column-part">
+            id,
+            user_name,
+            mobile,
+            sex,
+            address,
+            idcard,
+            join_date,
+            deptid,
+            dept_name,
+            position,
+            avatar,
+            is_leader
+    </sql>
+
+    <sql id="value-part">
+            #{entity.id:VARCHAR},
+            #{entity.userName:VARCHAR},
+            #{entity.mobile:VARCHAR},
+            #{entity.sex:VARCHAR},
+            #{entity.address:VARCHAR},
+            #{entity.idcard:VARCHAR},
+            #{entity.joinDate:DATE},
+            #{entity.deptid:VARCHAR},
+            #{entity.deptName:VARCHAR},
+            #{entity.position:VARCHAR},
+            #{entity.avatar:VARCHAR},
+            #{entity.isLeader:VARCHAR}
+    </sql>
+
+    <sql id="set-part">
+        <if test="entity.id != null">id = #{entity.id:VARCHAR}, </if>
+        <if test="entity.userName != null">user_name = #{entity.userName:VARCHAR}, </if>
+        <if test="entity.mobile != null">mobile = #{entity.mobile:VARCHAR}, </if>
+        <if test="entity.sex != null">sex = #{entity.sex:VARCHAR}, </if>
+        <if test="entity.address != null">address = #{entity.address:VARCHAR}, </if>
+        <if test="entity.idcard != null">idcard = #{entity.idcard:VARCHAR}, </if>
+        <if test="entity.joinDate != null">join_date = #{entity.joinDate:DATE}, </if>
+        <if test="entity.deptid != null">deptid = #{entity.deptid:VARCHAR}, </if>
+        <if test="entity.deptName != null">dept_name = #{entity.deptName:VARCHAR}, </if>
+        <if test="entity.position != null">position = #{entity.position:VARCHAR}, </if>
+        <if test="entity.avatar != null">avatar = #{entity.avatar:VARCHAR}, </if>
+        <if test="entity.isLeader != null">is_leader = #{entity.isLeader:VARCHAR}, </if>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+                <if test="terms.id != null and terms.id !=''">and id = #{terms.id} </if>
+                <if test="terms.userName != null and terms.userName !=''">and user_name = #{terms.userName} </if>
+                <if test="terms.mobile != null and terms.mobile !=''">and mobile = #{terms.mobile} </if>
+                <if test="terms.sex != null and terms.sex !=''">and sex = #{terms.sex} </if>
+                <if test="terms.address != null and terms.address !=''">and address = #{terms.address} </if>
+                <if test="terms.idcard != null and terms.idcard !=''">and idcard = #{terms.idcard} </if>
+                <if test="terms.joinDate != null and terms.joinDate !=''">and join_date = #{terms.joinDate} </if>
+                <if test="terms.deptid != null and terms.deptid !=''">and deptid = #{terms.deptid} </if>
+                <if test="terms.deptName != null and terms.deptName !=''">and dept_name = #{terms.deptName} </if>
+                <if test="terms.position != null and terms.position !=''">and position = #{terms.position} </if>
+                <if test="terms.avatar != null and terms.avatar !=''">and avatar = #{terms.avatar} </if>
+                <if test="terms.isLeader != null and terms.isLeader !=''">and is_leader = #{terms.isLeader} </if>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) values (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) values
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        delete from
+        <include refid="table"/>
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where id = #{id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+        limit #{page.offset}, #{page.size}
+    </select>
+</mapper>

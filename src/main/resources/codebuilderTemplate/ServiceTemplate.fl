@@ -1,0 +1,16 @@
+package ${servicePath};
+
+import com.sg.common.base.service.BaseService;
+import java.util.Map;
+
+/**
+* Title: ${title} 业务接口类
+* Description: ${description}
+* Company: com.sg920
+* author: ${author}
+* time:${ctime}
+* version 1.0
+*/
+public interface ${name}Service extends BaseService {
+
+}

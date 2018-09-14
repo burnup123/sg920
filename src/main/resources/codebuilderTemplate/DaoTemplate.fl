@@ -1,0 +1,19 @@
+package ${daoPath};
+
+
+import com.sg.common.base.dao.master.BaseDao;
+import org.apache.ibatis.annotations.Mapper;
+
+
+/**
+ * Title: ${title} 数据访问类
+ * Description: ${description}
+ * Company: com.sg920
+ * author: ${author}
+ * time:${ctime}
+ * version 1.0
+ */
+@Mapper
+public interface ${name}Dao extends BaseDao{
+
+}

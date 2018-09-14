@@ -1,0 +1,31 @@
+package ${serviceImplPath};
+
+import com.sg.common.base.service.BaseServiceImpl;
+import ${package}.service.${name}Service;
+import ${package}.dao.master.${name}Dao;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+* Title: ${title} 业务类
+* Description: ${description}
+* Company: com.sg920
+* author: ${author}
+* time:${ctime}
+* version 1.0
+*/
+@Service
+public class ${name}ServiceImpl extends BaseServiceImpl implements ${name}Service {
+    @Autowired
+    private ${name}Dao <@lowerFC>${name}</@lowerFC>Dao;
+
+    @PostConstruct
+    protected void init(){
+        super.setBaseDao(<@lowerFC>${name}</@lowerFC>Dao);
+    }
+}

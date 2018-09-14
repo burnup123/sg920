@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: 供应商商品 数据库操作
+ * Description: 供应商商品信息
+ * Company: com.sg920
+ * author: luomj
+ * time:2017-09-06 23:34:44
+ * version 1.0
+-->
+<mapper namespace="com.sg.purchase.dao.master.SupplierProductDao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+            <result property="id" column="id"/>
+            <result property="supplierid" column="supplierid"/>
+            <result property="productNo" column="product_no"/>
+            <result property="productName" column="product_name"/>
+            <result property="unit" column="unit"/>
+            <result property="price" column="price"/>
+            <result property="summary" column="summary"/>
+            <result property="thumbnail" column="thumbnail"/>
+    </resultMap>
+
+    <sql id="table">sg_supplier_product</sql>
+
+    <sql id="column-part">
+            id,
+            supplierid,
+            product_no,
+            product_name,
+            unit,
+            price,
+            summary,
+            thumbnail
+    </sql>
+
+    <sql id="value-part">
+            #{entity.id:VARCHAR},
+            #{entity.supplierid:VARCHAR},
+            #{entity.productNo:VARCHAR},
+            #{entity.productName:VARCHAR},
+            #{entity.unit:VARCHAR},
+            #{entity.price:DECIMAL},
+            #{entity.summary:VARCHAR},
+            #{entity.thumbnail:VARCHAR}
+    </sql>
+
+    <sql id="set-part">
+        <if test="entity.id != null">id = #{entity.id:VARCHAR}, </if>
+        <if test="entity.supplierid != null">supplierid = #{entity.supplierid:VARCHAR}, </if>
+        <if test="entity.productNo != null">product_no = #{entity.productNo:VARCHAR}, </if>
+        <if test="entity.productName != null">product_name = #{entity.productName:VARCHAR}, </if>
+        <if test="entity.unit != null">unit = #{entity.unit:VARCHAR}, </if>
+        <if test="entity.price != null">price = #{entity.price:DECIMAL}, </if>
+        <if test="entity.summary != null">summary = #{entity.summary:VARCHAR}, </if>
+        <if test="entity.thumbnail != null">thumbnail = #{entity.thumbnail:VARCHAR}, </if>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+                <if test="terms.id != null and terms.id !=''">and id = #{terms.id} </if>
+                <if test="terms.supplierid != null and terms.supplierid !=''">and supplierid = #{terms.supplierid} </if>
+                <if test="terms.productNo != null and terms.productNo !=''">and product_no = #{terms.productNo} </if>
+                <if test="terms.productName != null and terms.productName !=''">and product_name = #{terms.productName} </if>
+                <if test="terms.unit != null and terms.unit !=''">and unit = #{terms.unit} </if>
+                <if test="terms.price != null and terms.price !=''">and price = #{terms.price} </if>
+                <if test="terms.summary != null and terms.summary !=''">and summary = #{terms.summary} </if>
+                <if test="terms.thumbnail != null and terms.thumbnail !=''">and thumbnail = #{terms.thumbnail} </if>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) VALUES (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) VALUES
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="table"/>
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where id = #{id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+        limit #{page.offset}, #{page.size}
+    </select>
+</mapper>

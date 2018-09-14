@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: ${title} 数据库操作
+ * Description: ${description}
+ * Company: com.sg920
+ * author: ${author}
+ * time:${ctime}
+ * version 1.0
+-->
+<mapper namespace="${package}.dao.master.${name}Dao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+        <#list fields as json>
+            <result property="${json.name}" column="${json.colum}"/>
+        </#list>
+    </resultMap>
+
+    <sql id="table">${table}</sql>
+
+    <sql id="column-part">
+        <#list fields as json>
+            ${json.colum}<#if json_has_next>,</#if>
+        </#list>
+    </sql>
+
+    <sql id="value-part">
+        <#list fields as json>
+            ${"#{"}entity.${json.name}:${json.jdbcType}}<#if json_has_next>,</#if>
+        </#list>
+    </sql>
+
+    <sql id="set-part">
+        <#list fields as json>
+        ${"<if test"}="entity.${json.name} != null">${json.colum} = ${"#{"}entity.${json.name}:${json.jdbcType}}, ${"</if>"}
+        </#list>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+            <#list fields as json>
+                ${"<if test"}="terms.${json.name} != null and terms.${json.name} !=''">and ${json.colum} = ${"#{"}terms.${json.name}} ${"</if>"}
+            </#list>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) values (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) values
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            ${keyColum} = ${"#{"}entity.${key}}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        delete from
+        <include refid="table"/>
+        where ${keyColum} = ${"#{"}id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            ${"#{"}item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where ${keyColum} = ${"#{"}id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${"${"}s.property} ${"${"}s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(${keyColum})
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${"${"}s.property} ${"${"}s.direction}
+            </foreach>
+        </if>
+        limit ${"#{"}page.offset}, ${"#{"}page.size}
+    </select>
+</mapper>

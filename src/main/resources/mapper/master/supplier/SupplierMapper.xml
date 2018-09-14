@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: 供应商 数据库操作
+ * Description: 供应商信息
+ * Company: com.sg920
+ * author: luomj
+ * time:2017-09-06 23:34:44
+ * version 1.0
+-->
+<mapper namespace="com.sg.purchase.dao.master.SupplierDao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+            <result property="id" column="id"/>
+            <result property="supplierName" column="supplier_name"/>
+            <result property="address" column="address"/>
+            <result property="location" column="location"/>
+            <result property="contact" column="contact"/>
+            <result property="phone" column="phone"/>
+            <result property="position" column="position"/>
+    </resultMap>
+
+    <sql id="table">sg_supplier</sql>
+
+    <sql id="column-part">
+            id,
+            supplier_name,
+            address,
+            location,
+            contact,
+            phone,
+            position
+    </sql>
+
+    <sql id="value-part">
+            #{entity.id:VARCHAR},
+            #{entity.supplierName:VARCHAR},
+            #{entity.address:VARCHAR},
+            #{entity.location:VARCHAR},
+            #{entity.contact:VARCHAR},
+            #{entity.phone:VARCHAR},
+            #{entity.position:VARCHAR}
+    </sql>
+
+    <sql id="set-part">
+        <if test="entity.id != null">id = #{entity.id:VARCHAR}, </if>
+        <if test="entity.supplierName != null">supplier_name = #{entity.supplierName:VARCHAR}, </if>
+        <if test="entity.address != null">address = #{entity.address:VARCHAR}, </if>
+        <if test="entity.location != null">location = #{entity.location:VARCHAR}, </if>
+        <if test="entity.contact != null">contact = #{entity.contact:VARCHAR}, </if>
+        <if test="entity.phone != null">phone = #{entity.phone:VARCHAR}, </if>
+        <if test="entity.position != null">position = #{entity.position:VARCHAR}, </if>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+                <if test="terms.id != null and terms.id !=''">and id = #{terms.id} </if>
+                <if test="terms.supplierName != null and terms.supplierName !=''">and supplier_name = #{terms.supplierName} </if>
+                <if test="terms.address != null and terms.address !=''">and address = #{terms.address} </if>
+                <if test="terms.location != null and terms.location !=''">and location = #{terms.location} </if>
+                <if test="terms.contact != null and terms.contact !=''">and contact = #{terms.contact} </if>
+                <if test="terms.phone != null and terms.phone !=''">and phone = #{terms.phone} </if>
+                <if test="terms.position != null and terms.position !=''">and position = #{terms.position} </if>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) VALUES (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) VALUES
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="table"/>
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where id = #{id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+        limit #{page.offset}, #{page.size}
+    </select>
+</mapper>

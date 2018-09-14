@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: 客户 数据库操作
+ * Description: 客户信息
+ * Company: com.sg920
+ * author: luomj
+ * time:2017-09-06 23:34:44
+ * version 1.0
+-->
+<mapper namespace="com.sg.account.dao.master.CustomerDao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+            <result property="id" column="id"/>
+            <result property="customerName" column="customer_name"/>
+            <result property="wxNickName" column="wx_nick_name"/>
+            <result property="mobile" column="mobile"/>
+            <result property="wxUserid" column="wx_userid"/>
+            <result property="wxOpenid" column="wx_openid"/>
+            <result property="mpOpenid" column="mp_openid"/>
+            <result property="wxUnionid" column="wx_unionid"/>
+            <result property="mpFocusTime" column="mp_focus_time"/>
+            <result property="wxFocusTime" column="wx_focus_time"/>
+            <result property="cellId" column="cell_id"/>
+            <result property="cellName" column="cell_name"/>
+    </resultMap>
+
+    <sql id="table">sg_customer</sql>
+
+    <sql id="column-part">
+            id,
+            customer_name,
+            wx_nick_name,
+            mobile,
+            wx_userid,
+            wx_openid,
+            mp_openid,
+            wx_unionid,
+            mp_focus_time,
+            wx_focus_time,
+            cell_id,
+            cell_name
+    </sql>
+
+    <sql id="value-part">
+            #{entity.id:VARCHAR},
+            #{entity.customerName:VARCHAR},
+            #{entity.wxNickName:VARCHAR},
+            #{entity.mobile:VARCHAR},
+            #{entity.wxUserid:VARCHAR},
+            #{entity.wxOpenid:VARCHAR},
+            #{entity.mpOpenid:VARCHAR},
+            #{entity.wxUnionid:VARCHAR},
+            #{entity.mpFocusTime:TIMESTAMP},
+            #{entity.wxFocusTime:TIMESTAMP},
+            #{entity.cellId:VARCHAR},
+            #{entity.cellName:VARCHAR}
+    </sql>
+
+    <sql id="set-part">
+        <if test="entity.id != null">id = #{entity.id:VARCHAR}, </if>
+        <if test="entity.customerName != null">customer_name = #{entity.customerName:VARCHAR}, </if>
+        <if test="entity.wxNickName != null">wx_nick_name = #{entity.wxNickName:VARCHAR}, </if>
+        <if test="entity.mobile != null">mobile = #{entity.mobile:VARCHAR}, </if>
+        <if test="entity.wxUserid != null">wx_userid = #{entity.wxUserid:VARCHAR}, </if>
+        <if test="entity.wxOpenid != null">wx_openid = #{entity.wxOpenid:VARCHAR}, </if>
+        <if test="entity.mpOpenid != null">mp_openid = #{entity.mpOpenid:VARCHAR}, </if>
+        <if test="entity.wxUnionid != null">wx_unionid = #{entity.wxUnionid:VARCHAR}, </if>
+        <if test="entity.mpFocusTime != null">mp_focus_time = #{entity.mpFocusTime:TIMESTAMP}, </if>
+        <if test="entity.wxFocusTime != null">wx_focus_time = #{entity.wxFocusTime:TIMESTAMP}, </if>
+        <if test="entity.cellId != null">cell_id = #{entity.cellId:VARCHAR}, </if>
+        <if test="entity.cellName != null">cell_name = #{entity.cellName:VARCHAR}, </if>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+                <if test="terms.id != null and terms.id !=''">and id = #{terms.id} </if>
+                <if test="terms.customerName != null and terms.customerName !=''">and customer_name = #{terms.customerName} </if>
+                <if test="terms.wxNickName != null and terms.wxNickName !=''">and wx_nick_name = #{terms.wxNickName} </if>
+                <if test="terms.mobile != null and terms.mobile !=''">and mobile = #{terms.mobile} </if>
+                <if test="terms.wxUserid != null and terms.wxUserid !=''">and wx_userid = #{terms.wxUserid} </if>
+                <if test="terms.wxOpenid != null and terms.wxOpenid !=''">and wx_openid = #{terms.wxOpenid} </if>
+                <if test="terms.mpOpenid != null and terms.mpOpenid !=''">and mp_openid = #{terms.mpOpenid} </if>
+                <if test="terms.wxUnionid != null and terms.wxUnionid !=''">and wx_unionid = #{terms.wxUnionid} </if>
+                <if test="terms.mpFocusTime != null and terms.mpFocusTime !=''">and mp_focus_time = #{terms.mpFocusTime} </if>
+                <if test="terms.wxFocusTime != null and terms.wxFocusTime !=''">and wx_focus_time = #{terms.wxFocusTime} </if>
+                <if test="terms.cellId != null and terms.cellId !=''">and cell_id = #{terms.cellId} </if>
+                <if test="terms.cellName != null and terms.cellName !=''">and cell_name = #{terms.cellName} </if>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) VALUES (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) VALUES
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="table"/>
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where id = #{id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+        limit #{page.offset}, #{page.size}
+    </select>
+</mapper>

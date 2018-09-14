@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: 系统日志 数据库操作
+ * Description: 系统日志
+ * Company: com.sg920
+ * author: luomj
+ * time:2017-09-06 22:58:03
+ * version 1.0
+-->
+<mapper namespace="com.sg.common.syslog.dao.master.SysLogDao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+            <result property="Id" column="id"/>
+            <result property="Userid" column="userid"/>
+            <result property="Module" column="module"/>
+            <result property="Opttype" column="opttype"/>
+            <result property="Objectid" column="objectid"/>
+            <result property="Terminal" column="terminal"/>
+            <result property="Brower" column="brower"/>
+            <result property="CreateTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="table">sg_sys_log</sql>
+
+    <sql id="column-part">
+            id,
+            userid,
+            module,
+            opttype,
+            objectid,
+            terminal,
+            brower,
+            create_time
+    </sql>
+
+    <sql id="value-part">
+            #{entity.Id:VARCHAR},
+            #{entity.Userid:VARCHAR},
+            #{entity.Module:VARCHAR},
+            #{entity.Opttype:VARCHAR},
+            #{entity.Objectid:VARCHAR},
+            #{entity.Terminal:VARCHAR},
+            #{entity.Brower:VARCHAR},
+            #{entity.CreateTime:TIMESTAMP}
+    </sql>
+
+    <sql id="set-part">
+        <if test="entity.Id != null">id = #{entity.Id:VARCHAR}, </if>
+        <if test="entity.Userid != null">userid = #{entity.Userid:VARCHAR}, </if>
+        <if test="entity.Module != null">module = #{entity.Module:VARCHAR}, </if>
+        <if test="entity.Opttype != null">opttype = #{entity.Opttype:VARCHAR}, </if>
+        <if test="entity.Objectid != null">objectid = #{entity.Objectid:VARCHAR}, </if>
+        <if test="entity.Terminal != null">terminal = #{entity.Terminal:VARCHAR}, </if>
+        <if test="entity.Brower != null">brower = #{entity.Brower:VARCHAR}, </if>
+        <if test="entity.CreateTime != null">create_time = #{entity.CreateTime:TIMESTAMP}, </if>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+                <if test="terms.Id != null and terms.Id !=''">and id = #{terms.Id} </if>
+                <if test="terms.Userid != null and terms.Userid !=''">and userid = #{terms.Userid} </if>
+                <if test="terms.Module != null and terms.Module !=''">and module = #{terms.Module} </if>
+                <if test="terms.Opttype != null and terms.Opttype !=''">and opttype = #{terms.Opttype} </if>
+                <if test="terms.Objectid != null and terms.Objectid !=''">and objectid = #{terms.Objectid} </if>
+                <if test="terms.Terminal != null and terms.Terminal !=''">and terminal = #{terms.Terminal} </if>
+                <if test="terms.Brower != null and terms.Brower !=''">and brower = #{terms.Brower} </if>
+                <if test="terms.CreateTime != null and terms.CreateTime !=''">and create_time = #{terms.CreateTime} </if>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) VALUES (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) VALUES
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="table"/>
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where id = #{id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+        limit #{page.offset}, #{page.size}
+    </select>
+</mapper>

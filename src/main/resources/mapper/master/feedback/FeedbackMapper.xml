@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: 客户反馈 数据库操作
+ * Description: 客户反馈
+ * Company: com.sg920
+ * author: luomj
+ * time:2017-09-06 23:34:44
+ * version 1.0
+-->
+<mapper namespace="com.sg.custservice.dao.master.FeedbackDao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+            <result property="id" column="id"/>
+            <result property="customerrid" column="customerrid"/>
+            <result property="customerName" column="customer_name"/>
+            <result property="fbType" column="fb_type"/>
+            <result property="fbSubject" column="fb_subject"/>
+            <result property="content" column="content"/>
+            <result property="createTime" column="create_time"/>
+            <result property="replier" column="replier"/>
+            <result property="replyContent" column="reply_content"/>
+            <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="table">sg_feedback</sql>
+
+    <sql id="column-part">
+            id,
+            customerrid,
+            customer_name,
+            fb_type,
+            fb_subject,
+            content,
+            create_time,
+            replier,
+            reply_content,
+            update_time
+    </sql>
+
+    <sql id="value-part">
+            #{entity.id:VARCHAR},
+            #{entity.customerrid:VARCHAR},
+            #{entity.customerName:VARCHAR},
+            #{entity.fbType:VARCHAR},
+            #{entity.fbSubject:VARCHAR},
+            #{entity.content:VARCHAR},
+            #{entity.createTime:TIMESTAMP},
+            #{entity.replier:VARCHAR},
+            #{entity.replyContent:VARCHAR},
+            #{entity.updateTime:TIMESTAMP}
+    </sql>
+
+    <sql id="set-part">
+        <if test="entity.id != null">id = #{entity.id:VARCHAR}, </if>
+        <if test="entity.customerrid != null">customerrid = #{entity.customerrid:VARCHAR}, </if>
+        <if test="entity.customerName != null">customer_name = #{entity.customerName:VARCHAR}, </if>
+        <if test="entity.fbType != null">fb_type = #{entity.fbType:VARCHAR}, </if>
+        <if test="entity.fbSubject != null">fb_subject = #{entity.fbSubject:VARCHAR}, </if>
+        <if test="entity.content != null">content = #{entity.content:VARCHAR}, </if>
+        <if test="entity.createTime != null">create_time = #{entity.createTime:TIMESTAMP}, </if>
+        <if test="entity.replier != null">replier = #{entity.replier:VARCHAR}, </if>
+        <if test="entity.replyContent != null">reply_content = #{entity.replyContent:VARCHAR}, </if>
+        <if test="entity.updateTime != null">update_time = #{entity.updateTime:TIMESTAMP}, </if>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+                <if test="terms.id != null and terms.id !=''">and id = #{terms.id} </if>
+                <if test="terms.customerrid != null and terms.customerrid !=''">and customerrid = #{terms.customerrid} </if>
+                <if test="terms.customerName != null and terms.customerName !=''">and customer_name = #{terms.customerName} </if>
+                <if test="terms.fbType != null and terms.fbType !=''">and fb_type = #{terms.fbType} </if>
+                <if test="terms.fbSubject != null and terms.fbSubject !=''">and fb_subject = #{terms.fbSubject} </if>
+                <if test="terms.content != null and terms.content !=''">and content = #{terms.content} </if>
+                <if test="terms.createTime != null and terms.createTime !=''">and create_time = #{terms.createTime} </if>
+                <if test="terms.replier != null and terms.replier !=''">and replier = #{terms.replier} </if>
+                <if test="terms.replyContent != null and terms.replyContent !=''">and reply_content = #{terms.replyContent} </if>
+                <if test="terms.updateTime != null and terms.updateTime !=''">and update_time = #{terms.updateTime} </if>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) VALUES (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) VALUES
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="table"/>
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where id = #{id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+        limit #{page.offset}, #{page.size}
+    </select>
+</mapper>

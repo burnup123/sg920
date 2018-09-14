@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--
+ * Title: 系统参数管理 数据库操作
+ * Description: 系统参数
+ * Company: com.sg920
+ * author: luomj
+ * time:2017-09-06 23:34:44
+ * version 1.0
+-->
+<mapper namespace="com.sg.system.dao.master.SysParamDao">
+    <resultMap id="dataResultMap" type="java.util.Map">
+            <result property="id" column="id"/>
+            <result property="paramKey" column="param_key"/>
+            <result property="paramValue" column="param_value"/>
+            <result property="paramDesc" column="param_desc"/>
+            <result property="paramType" column="param_type"/>
+            <result property="paramLevel" column="param_level"/>
+            <result property="pid" column="pid"/>
+            <result property="isDelete" column="is_delete"/>
+    </resultMap>
+
+    <sql id="table">sg_sys_param</sql>
+
+    <sql id="column-part">
+            id,
+            param_key,
+            param_value,
+            param_desc,
+            param_type,
+            param_level,
+            pid,
+            is_delete
+    </sql>
+
+    <sql id="value-part">
+            #{entity.id:VARCHAR},
+            #{entity.paramKey:VARCHAR},
+            #{entity.paramValue:VARCHAR},
+            #{entity.paramDesc:VARCHAR},
+            #{entity.paramType:VARCHAR},
+            #{entity.paramLevel:INTEGER},
+            #{entity.pid:VARCHAR},
+            #{entity.isDelete:VARCHAR}
+    </sql>
+
+    <sql id="set-part">
+        <if test="entity.id != null">id = #{entity.id:VARCHAR}, </if>
+        <if test="entity.paramKey != null">param_key = #{entity.paramKey:VARCHAR}, </if>
+        <if test="entity.paramValue != null">param_value = #{entity.paramValue:VARCHAR}, </if>
+        <if test="entity.paramDesc != null">param_desc = #{entity.paramDesc:VARCHAR}, </if>
+        <if test="entity.paramType != null">param_type = #{entity.paramType:VARCHAR}, </if>
+        <if test="entity.paramLevel != null">param_level = #{entity.paramLevel:INTEGER}, </if>
+        <if test="entity.pid != null">pid = #{entity.pid:VARCHAR}, </if>
+        <if test="entity.isDelete != null">is_delete = #{entity.isDelete:VARCHAR}, </if>
+    </sql>
+
+    <sql id="where-part">
+        <if test="terms != null">
+            <where>
+                <if test="terms.id != null and terms.id !=''">and id = #{terms.id} </if>
+                <if test="terms.paramKey != null and terms.paramKey !=''">and param_key = #{terms.paramKey} </if>
+                <if test="terms.paramValue != null and terms.paramValue !=''">and param_value = #{terms.paramValue} </if>
+                <if test="terms.paramDesc != null and terms.paramDesc !=''">and param_desc = #{terms.paramDesc} </if>
+                <if test="terms.paramType != null and terms.paramType !=''">and param_type = #{terms.paramType} </if>
+                <if test="terms.paramLevel != null and terms.paramLevel !=''">and param_level = #{terms.paramLevel} </if>
+                <if test="terms.pid != null and terms.pid !=''">and pid = #{terms.pid} </if>
+                <if test="terms.isDelete != null and terms.isDelete !=''">and is_delete = #{terms.isDelete} </if>
+            </where>
+        </if>
+    </sql>
+
+    <insert id="insert">
+        insert into
+        <include refid="table"/>
+        (
+        <include refid="column-part"/>
+        ) VALUES (
+        <include refid="value-part"/>
+        )
+    </insert>
+    <insert id="insertBatch" parameterType="List">
+        insert into <include refid="table"/>(
+        <include refid="column-part"/>
+        ) VALUES
+        <foreach collection="list" item="entity" index="index" separator=",">
+            (
+            <include refid="value-part"/>
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <update id="updateByMap">
+        update
+        <include refid="table"/>
+        <set>
+            <include refid="set-part"/>
+        </set>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="table"/>
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByMap" >
+        delete from
+        <include refid="table"/>
+        <where>
+            <include refid="where-part"/>
+        </where>
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from
+        <include refid="table"/>
+        where id in
+        <foreach item="item" index="object" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fetch" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        where id = #{id}
+    </select>
+
+    <select id="find" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        select count(id)
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+    </select>
+
+    <select id="page" resultMap="dataResultMap">
+        select
+        <include refid="column-part"/>
+        from
+        <include refid="table"/>
+        <include refid="where-part"/>
+        <if test="sort != null">
+            <foreach collection="sort" item="s" index="index" separator="," open="order by ">
+                ${s.property} ${s.direction}
+            </foreach>
+        </if>
+        limit #{page.offset}, #{page.size}
+    </select>
+</mapper>
